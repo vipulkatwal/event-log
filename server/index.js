@@ -13,10 +13,16 @@ dotenv.config(); // Load environment variables from .env file
 const app = express();
 const httpServer = createServer(app);
 
+// Dynamic origin handling for CORS
+const allowedOrigins = [
+	"http://localhost:5173", // Local frontend
+	"https://event-chain-chi.vercel.app", // Deployed frontend
+];
+
 // Initialize Socket.IO with CORS configuration
 const io = new Server(httpServer, {
 	cors: {
-		origin: "http://localhost:5173", // Allow connections from frontend at this origin
+		origin: allowedOrigins, // Allow connections from local and deployed origins
 		methods: ["GET", "POST"], // Allow specified HTTP methods
 	},
 });
@@ -24,7 +30,14 @@ const io = new Server(httpServer, {
 // Middleware configuration
 app.use(
 	cors({
-		origin: "http://localhost:5173", // Enable CORS for the specified frontend origin
+		origin: (origin, callback) => {
+			// Check if the request origin is in the allowed origins
+			if (!origin || allowedOrigins.includes(origin)) {
+				callback(null, true); // Allow the request
+			} else {
+				callback(new Error("Not allowed by CORS")); // Reject the request
+			}
+		},
 		credentials: true, // Allow credentials to be sent with requests
 	})
 );
