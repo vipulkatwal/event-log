@@ -1,8 +1,7 @@
 # 📝 Event Logging System
 
 ![preview](/screenShot.png)
-![preview](/search.png)
-![preview](/dashboard.png)
+
 
 ## 🌟 Overview
 A decentralized, tamper-proof event logging platform for distributed applications. Designed to be scalable, secure, and user-friendly.
@@ -25,6 +24,7 @@ A decentralized, tamper-proof event logging platform for distributed application
 - No polling required for real-time data
 - Instant client notifications
 
+![preview](/search.png)
 ### 🔍 Search and Query
 - Filter by:
   - 📅 Timestamp range
@@ -33,6 +33,7 @@ A decentralized, tamper-proof event logging platform for distributed application
 - Pagination support for large datasets
 - Advanced filtering capabilities
 
+![preview](/dashboard.png)
 ### 🎨 Frontend Dashboard
 - Built with React & Tailwind CSS
 - Features include:
