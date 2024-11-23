@@ -1,10 +1,13 @@
-const API_BASE_URL = 'http://localhost:3000';
+const isProduction = import.meta.env.MODE === "production";
+
+const API_BASE_URL = isProduction
+  ? "https://event-chain-chi.vercel.app"
+  : "http://localhost:3000";
 
 export const API_CONFIG = {
-  baseUrl: import.meta.env?.VITE_API_BASE_URL || API_BASE_URL,
-  wsUrl: import.meta.env?.VITE_API_BASE_URL || API_BASE_URL,
+  baseUrl: API_BASE_URL,
+  wsUrl: API_BASE_URL,
   endpoints: {
-    events: '/api/events',
-    search: '/api/events/search'
-  }
+    events: "/api/events",
+  },
 } as const;

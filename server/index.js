@@ -13,7 +13,6 @@ dotenv.config(); // Load environment variables from .env file
 const app = express();
 const httpServer = createServer(app);
 
-// Dynamic origin handling for CORS
 const allowedOrigins = [
 	"http://localhost:5173", // Local frontend
 	"https://event-chain-chi.vercel.app", // Deployed frontend
@@ -22,8 +21,8 @@ const allowedOrigins = [
 // Initialize Socket.IO with CORS configuration
 const io = new Server(httpServer, {
 	cors: {
-		origin: allowedOrigins, // Allow connections from local and deployed origins
-		methods: ["GET", "POST"], // Allow specified HTTP methods
+		origin: allowedOrigins,
+		methods: ["GET", "POST"],
 	},
 });
 
@@ -38,42 +37,42 @@ app.use(
 				callback(new Error("Not allowed by CORS")); // Reject the request
 			}
 		},
-		credentials: true, // Allow credentials to be sent with requests
+		credentials: true,
 	})
 );
-app.use(express.json()); // Parse incoming JSON payloads
+app.use(express.json());
 
 // Store the io instance in the app for use in routes or middleware
 app.set("io", io);
 
 // MongoDB Connection
 mongoose
-	.connect(process.env.MONGO_URI)
-	.then(() => console.log("✅ MongoDB Connected")) // Log success message if connected
+	.connect(CONFIG.mongodb.uri, CONFIG.mongodb.options)
+	.then(() => console.log("✅ MongoDB Connected"))
 	.catch((err) => {
-		console.error("MongoDB Connection Error:", err); // Log error if connection fails
-		process.exit(1); // Exit process if connection fails
+		console.error("MongoDB Connection Error:", err);
+		process.exit(1);
 	});
 
 // Basic route for testing API availability
 app.get("/", (req, res) => {
-	res.json({ message: "API is running" }); // Respond with a simple message
+	res.json({ message: "API is running" });
 });
 
 // API routes
-app.use("/api/events", eventRoutes); // Mount event-related routes at '/api/events'
+app.use(CONFIG.api.routes.events, eventRoutes);
 
 // Error handler middleware
-app.use(errorHandler); // Handle errors globally using the custom error handler
+app.use(errorHandler);
 
 // WebSocket connection
 io.on("connection", (socket) => {
-	console.log("Client connected"); // Log when a client connects to the server
-	socket.on("disconnect", () => console.log("Client disconnected")); // Log when a client disconnects
+	console.log("Client connected");
+	socket.on("disconnect", () => console.log("Client disconnected"));
 });
 
 // Start the server
-const PORT = process.env.PORT || 3000;
+const PORT = CONFIG.server.port;
 httpServer.listen(PORT, () => {
-	console.log(`🚀 Server running on port ${PORT}`); // Log the server start message with port
+	console.log(`🚀 Server running on port ${PORT}`);
 });
