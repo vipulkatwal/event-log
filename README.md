@@ -1,6 +1,8 @@
 # 📝 Event Logging System
 
 ![preview](/screenShot.png)
+![preview](/search.png)
+![preview](/dashboard.png)
 
 ## 🌟 Overview
 A decentralized, tamper-proof event logging platform for distributed applications. Designed to be scalable, secure, and user-friendly.

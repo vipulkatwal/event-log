@@ -4,16 +4,13 @@ import { BarChart as BarChartIcon, PieChart, Activity, Server } from 'lucide-rea
 import { EventService } from '../services/api';
 
 function Dashboard() {
-  // Fetch events data using react-query
   const { data: events } = useQuery('events', EventService.getEvents);
 
-  // Calculate the count of each event type
   const eventTypeCount = events?.reduce((acc, event) => {
     acc[event.eventType] = (acc[event.eventType] || 0) + 1;
     return acc;
   }, {} as Record<string, number>) || {};
 
-  // Calculate the count of each source application
   const sourceAppCount = events?.reduce((acc, event) => {
     acc[event.sourceAppId] = (acc[event.sourceAppId] || 0) + 1;
     return acc;
@@ -23,9 +20,7 @@ function Dashboard() {
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-white mb-6">System Dashboard</h2>
 
-      {/* Metrics cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Events */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
           <div className="flex items-center">
             <Activity className="h-8 w-8 text-blue-500" />
@@ -36,7 +31,6 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Unique Event Types */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
           <div className="flex items-center">
             <BarChartIcon className="h-8 w-8 text-green-500" />
@@ -49,7 +43,6 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Unique Source Applications */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
           <div className="flex items-center">
             <Server className="h-8 w-8 text-purple-500" />
@@ -62,7 +55,6 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Chain Length */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
           <div className="flex items-center">
             <PieChart className="h-8 w-8 text-yellow-500" />
@@ -74,9 +66,7 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Distribution Data */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Event Types Distribution */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
           <h3 className="text-lg font-semibold text-white mb-4">Event Types Distribution</h3>
           <div className="space-y-4">
@@ -90,7 +80,7 @@ function Dashboard() {
                   <div
                     className="bg-blue-500 rounded-full h-2"
                     style={{
-                      width: `${(count / (events?.length || 1)) * 100}%`, // Calculate percentage width
+                      width: `${(count / (events?.length || 1)) * 100}%`,
                     }}
                   />
                 </div>
@@ -99,7 +89,6 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Source Applications Distribution */}
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
           <h3 className="text-lg font-semibold text-white mb-4">Source Applications</h3>
           <div className="space-y-4">
@@ -113,7 +102,7 @@ function Dashboard() {
                   <div
                     className="bg-purple-500 rounded-full h-2"
                     style={{
-                      width: `${(count / (events?.length || 1)) * 100}%`, // Calculate percentage width
+                      width: `${(count / (events?.length || 1)) * 100}%`,
                     }}
                   />
                 </div>
