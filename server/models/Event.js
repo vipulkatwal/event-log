@@ -1,33 +1,34 @@
 import mongoose from "mongoose";
 
-// Define the schema for the 'Event' collection
+// Define the schema for an event in the MongoDB database
 const eventSchema = new mongoose.Schema({
 	eventType: {
-		type: String,
-		required: true, // Event type is required (e.g., "click", "view")
+		type: String, // Specifies the type of the event
+		required: true, // Ensures this field is mandatory
 	},
 	timestamp: {
-		type: Date,
-		default: Date.now, // Automatically set to the current date and time if not provided
+		type: Date, // Records the date and time of the event
+		default: Date.now, // Defaults to the current date and time if not provided
 	},
 	sourceAppId: {
-		type: String,
-		required: true, // The ID of the application that generated the event is required
+		type: String, // Identifies the source application generating the event
+		required: true, // Ensures this field is mandatory
 	},
 	data: {
-		type: mongoose.Schema.Types.Mixed, // Can store any type of data related to the event
-		required: true, // Event data is mandatory
+		type: mongoose.Schema.Types.Mixed, // Allows storing data of any type
+		required: true, // Ensures this field is mandatory
 	},
 	hash: {
-		type: String,
-		required: true, // Hash for ensuring data integrity is required
+		type: String, // Unique hash representing the current event
+		required: true, // Ensures this field is mandatory
 	},
 	previousHash: {
-		type: String,
-		required: true, // Hash of the previous event in the chain for immutability
+		type: String, // Hash of the previous event for chaining events (blockchain-style)
+		required: true, // Ensures this field is mandatory
 	},
 });
 
-// Create the 'Event' model using the schema
+// Create a model for the event schema
 const Event = mongoose.model("Event", eventSchema);
-export default Event;
+
+export default Event; // Export the Event model for use in other parts of the application

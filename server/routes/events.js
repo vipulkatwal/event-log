@@ -2,10 +2,11 @@ import express from "express";
 import Event from "../models/Event.js";
 import CryptoJS from "crypto-js";
 
-const router = express.Router(); // Create a new router instance
+const router = express.Router();
 
-// Utility function to generate a SHA256 hash for an event
+// Utility function to generate a hash for an event
 const generateHash = (event) => {
+	// Combine event data into a single string for hashing
 	const data = JSON.stringify({
 		eventType: event.eventType,
 		timestamp: event.timestamp,
@@ -13,63 +14,74 @@ const generateHash = (event) => {
 		data: event.data,
 		previousHash: event.previousHash,
 	});
-	return CryptoJS.SHA256(data).toString(); // Generate and return the hash
+	// Generate a SHA256 hash of the data
+	return CryptoJS.SHA256(data).toString();
 };
 
-// Endpoint to fetch the most recent 50 events
+// Route: GET /
+// Description: Fetch the latest 50 events sorted by timestamp (most recent first)
 router.get("/", async (req, res) => {
 	try {
-		const events = await Event.find().sort({ timestamp: -1 }).limit(50); // Fetch events sorted by latest timestamp
-		res.json(events); // Return the events as a JSON response
+		const events = await Event.find().sort({ timestamp: -1 }).limit(50); // Query to get latest events
+		res.json(events); // Respond with the fetched events
 	} catch (error) {
-		res.status(500).json({ message: error.message }); // Handle and return any server errors
+		res.status(500).json({ message: error.message }); // Handle errors during query execution
 	}
 });
 
-// Endpoint to create a new event
+// Route: POST /
+// Description: Create a new event
 router.post("/", async (req, res) => {
 	try {
-		const lastEvent = await Event.findOne().sort({ timestamp: -1 }); // Get the latest event to retrieve its hash
-		const previousHash = lastEvent ? lastEvent.hash : "0"; // Use '0' if no previous events exist
+		// Get the last event to determine the previous hash
+		const lastEvent = await Event.findOne().sort({ timestamp: -1 });
+		const previousHash = lastEvent ? lastEvent.hash : "0"; // Use '0' if no prior event exists
 
+		// Create a new event object
 		const newEvent = new Event({
-			...req.body, // Spread the incoming event data
-			timestamp: new Date(), // Assign the current timestamp
-			previousHash, // Assign the hash of the last event
+			...req.body, // Spread operator to include body fields in the new event
+			timestamp: new Date(), // Set the current timestamp
+			previousHash, // Set the previous hash
 		});
 
-		newEvent.hash = generateHash(newEvent); // Generate the hash for the new event
-		const savedEvent = await newEvent.save(); // Save the event to the database
+		// Generate hash for the new event
+		newEvent.hash = generateHash(newEvent);
 
-		// Emit the new event through Socket.IO for real-time updates
+		// Save the event to the database
+		const savedEvent = await newEvent.save();
+
+		// Emit the new event using Socket.IO for real-time updates
 		req.app.get("io").emit("newEvent", savedEvent);
 
-		res.status(201).json(savedEvent); // Respond with the created event
+		// Respond with the saved event
+		res.status(201).json(savedEvent);
 	} catch (error) {
-		res.status(400).json({ message: error.message }); // Handle and return any client-side errors
+		res.status(400).json({ message: error.message }); // Handle validation or other errors
 	}
 });
 
-// Endpoint to search for events based on filters
+// Route: GET /search
+// Description: Search for events based on query parameters
 router.get("/search", async (req, res) => {
 	try {
-		const { eventType, sourceAppId, startDate, endDate } = req.query; // Destructure query parameters
-		const query = {}; // Initialize the query object
+		const { eventType, sourceAppId, startDate, endDate } = req.query; // Extract query parameters
+		const query = {}; // Initialize query object
 
-		// Add filters to the query if provided
-		if (eventType) query.eventType = eventType;
-		if (sourceAppId) query.sourceAppId = sourceAppId;
+		// Add filters to the query object based on provided parameters
+		if (eventType) query.eventType = eventType; // Filter by event type
+		if (sourceAppId) query.sourceAppId = sourceAppId; // Filter by source app ID
 		if (startDate || endDate) {
-			query.timestamp = {};
-			if (startDate) query.timestamp.$gte = new Date(startDate); // Filter events after startDate
-			if (endDate) query.timestamp.$lte = new Date(endDate); // Filter events before endDate
+			query.timestamp = {}; // Initialize timestamp filter
+			if (startDate) query.timestamp.$gte = new Date(startDate); // Start date filter
+			if (endDate) query.timestamp.$lte = new Date(endDate); // End date filter
 		}
 
-		const events = await Event.find(query).sort({ timestamp: -1 }); // Execute the query and sort by timestamp
-		res.json(events); // Return the matching events as a JSON response
+		// Execute the query and fetch matching events
+		const events = await Event.find(query).sort({ timestamp: -1 });
+		res.json(events); // Respond with the fetched events
 	} catch (error) {
-		res.status(500).json({ message: error.message }); // Handle and return any server errors
+		res.status(500).json({ message: error.message }); // Handle errors during query execution
 	}
 });
 
-export default router;
+export default router; // Export the router to be used in the application

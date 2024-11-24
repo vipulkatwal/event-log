@@ -1,32 +1,33 @@
-// Global error handling middleware
+// Error handler middleware to handle and respond to application errors
 export const errorHandler = (err, req, res, next) => {
-	console.error("❌ Error:", err.stack); // Log the error stack for debugging purposes
+	// Log the error stack trace to the console for debugging
+	console.error("❌ Error:", err.stack);
 
 	// Handle MongoDB-specific errors
 	if (err.name === "MongoError" || err.name === "MongoServerError") {
 		return res.status(500).json({
 			error: {
-				message: "Database error occurred", // Generic message for database-related errors
-				status: 500, // Internal server error status
+				message: "Database error occurred", // Message for database-related errors
+				status: 500, // HTTP status code for internal server error
 			},
 		});
 	}
 
-	// Handle validation errors (e.g., data validation in Mongoose)
+	// Handle validation errors (e.g., Mongoose schema validation)
 	if (err.name === "ValidationError") {
 		return res.status(400).json({
 			error: {
-				message: err.message, // Provide the validation error message
-				status: 400, // Bad request status
+				message: err.message, // Validation error message from the error object
+				status: 400, // HTTP status code for bad request
 			},
 		});
 	}
 
-	// Handle any other errors with a default response
+	// Default error handler for all other types of errors
 	res.status(err.status || 500).json({
 		error: {
-			message: err.message || "Internal Server Error", // Use a generic message if none is provided
-			status: err.status || 500, // Default to internal server error if no status is defined
+			message: err.message || "Internal Server Error", // Generic error message
+			status: err.status || 500, // HTTP status code; defaults to 500
 		},
 	});
 };

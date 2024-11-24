@@ -12,33 +12,40 @@ interface SearchParams {
 }
 
 function EventSearch() {
+  // State to hold the search parameters
   const [searchParams, setSearchParams] = useState<SearchParams>({});
+
+  // Fetch events based on search parameters using react-query
   const { data: events, isLoading } = useQuery(
     ['events', searchParams],
-    () => EventService.searchEvents(searchParams),
-    { enabled: Object.keys(searchParams).length > 0 }
+    () => EventService.searchEvents(searchParams), // Fetch events from the service
+    { enabled: Object.keys(searchParams).length > 0 } // Query is enabled only when search parameters are provided
   );
 
+  // Handles form submission for search
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
+    const formData = new FormData(e.target as HTMLFormElement); // Collect form data
     const params: SearchParams = {};
 
+    // Extracting values from the form inputs
     const eventType = formData.get('eventType') as string;
     const sourceAppId = formData.get('sourceAppId') as string;
     const startDate = formData.get('startDate') as string;
     const endDate = formData.get('endDate') as string;
 
+    // Assigning values to the search parameters
     if (eventType) params.eventType = eventType;
     if (sourceAppId) params.sourceAppId = sourceAppId;
     if (startDate) params.startDate = startDate;
     if (endDate) params.endDate = endDate;
 
-    setSearchParams(params);
+    setSearchParams(params); // Update state with new search parameters
   };
 
   return (
     <div className="space-y-6">
+      {/* Search Form */}
       <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
         <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
           <Search className="h-5 w-5 mr-2" />
@@ -47,6 +54,7 @@ function EventSearch() {
 
         <form onSubmit={handleSearch} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Input for Event Type */}
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-2">
                 <Tag className="h-4 w-4 inline-block mr-1" />
@@ -60,6 +68,7 @@ function EventSearch() {
               />
             </div>
 
+            {/* Input for Source App */}
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-2">
                 <Filter className="h-4 w-4 inline-block mr-1" />
@@ -73,6 +82,7 @@ function EventSearch() {
               />
             </div>
 
+            {/* Input for Start Date */}
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-2">
                 <Calendar className="h-4 w-4 inline-block mr-1" />
@@ -85,6 +95,7 @@ function EventSearch() {
               />
             </div>
 
+            {/* Input for End Date */}
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-2">
                 <Calendar className="h-4 w-4 inline-block mr-1" />
@@ -98,6 +109,7 @@ function EventSearch() {
             </div>
           </div>
 
+          {/* Submit Button */}
           <div className="flex justify-end">
             <button
               type="submit"
@@ -109,6 +121,7 @@ function EventSearch() {
         </form>
       </div>
 
+      {/* Display Loading State */}
       {isLoading ? (
         <div className="animate-pulse space-y-4">
           {[...Array(3)].map((_, i) => (
@@ -116,6 +129,7 @@ function EventSearch() {
           ))}
         </div>
       ) : events?.length ? (
+        // Render Events if data is present
         <div className="space-y-4">
           {events.map((event) => (
             <div
@@ -146,6 +160,7 @@ function EventSearch() {
           ))}
         </div>
       ) : searchParams.eventType || searchParams.sourceAppId ? (
+        // Display message if no events match the search criteria
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 text-center text-gray-400">
           No events found matching your search criteria
         </div>
